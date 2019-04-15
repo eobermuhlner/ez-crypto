@@ -1,4 +1,4 @@
-package ch.obermuhlner.crypto.internal;
+package ch.obermuhlner.crypto.v1;
 
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
