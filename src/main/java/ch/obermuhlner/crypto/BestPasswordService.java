@@ -4,6 +4,7 @@ import ch.obermuhlner.crypto.v1.PasswordServiceV1;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class BestPasswordService implements PasswordService {
 
@@ -26,6 +27,15 @@ public class BestPasswordService implements PasswordService {
 
     @Override
     public boolean verifyPassword(String password, String hashedPassword) {
-        return passwordServices.get(0).verifyPassword(password, hashedPassword);
+        String[] split = hashedPassword.split(Pattern.quote(":"));
+        int version = Integer.parseInt(split[0]);
+
+        for (PasswordService passwordService : passwordServices) {
+            if (passwordService.getVersion() == version) {
+                return passwordService.verifyPassword(password, hashedPassword);
+            }
+        }
+
+        throw new IllegalArgumentException("Unknown version: " + version);
     }
 }

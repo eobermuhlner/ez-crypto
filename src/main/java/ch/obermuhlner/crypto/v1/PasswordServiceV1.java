@@ -33,7 +33,7 @@ public class PasswordServiceV1 implements PasswordService {
 
             byte[] secretKeyBytes = secretKey.getSecretKeyBytes(password, salt, encryptIterations, passwordBytesLength);
 
-            String passwordStorage = encryptIterations + ":" + Base64.getEncoder().encodeToString(salt) + ":" + Base64.getEncoder().encodeToString(secretKeyBytes);
+            String passwordStorage = VERSION + ":" + encryptIterations + ":" + Base64.getEncoder().encodeToString(salt) + ":" + Base64.getEncoder().encodeToString(secretKeyBytes);
             return passwordStorage;
         } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
             throw new CryptoException(e);
@@ -44,9 +44,14 @@ public class PasswordServiceV1 implements PasswordService {
     public boolean verifyPassword(String password, String hashedPassword) {
         try {
             String[] split = hashedPassword.split(Pattern.quote(":"));
-            int iterations = Integer.parseInt(split[0]);
-            byte[] salt = Base64.getDecoder().decode(split[1]);
-            byte[] storedPasswordHash = Base64.getDecoder().decode(split[2]);
+            int version = Integer.parseInt(split[0]);
+            if (version != VERSION) {
+                throw new IllegalArgumentException("Unknown version: " + version);
+            }
+
+            int iterations = Integer.parseInt(split[1]);
+            byte[] salt = Base64.getDecoder().decode(split[2]);
+            byte[] storedPasswordHash = Base64.getDecoder().decode(split[3]);
 
             byte[] secretKeyBytes = secretKey.getSecretKeyBytes(password, salt, iterations, passwordBytesLength);
 
