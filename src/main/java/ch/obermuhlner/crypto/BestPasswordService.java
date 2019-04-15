@@ -25,6 +25,18 @@ public class BestPasswordService implements PasswordService {
         return passwordServices.get(0).hashPassword(password);
     }
 
+    public boolean existsBetterPasswordService(String hashedPassword) {
+        String[] split = hashedPassword.split(Pattern.quote(":"));
+        int version = Integer.parseInt(split[0]);
+
+        for (PasswordService passwordService : passwordServices) {
+            if (passwordService.getVersion() > version) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     public boolean verifyPassword(String password, String hashedPassword) {
         String[] split = hashedPassword.split(Pattern.quote(":"));
